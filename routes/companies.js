@@ -16,16 +16,24 @@ router.get("/", async(req, res, next) => {
     };
 });
 
-// Returns an object of a specific company, or a 404 error if the company is not found
+// Returns an object of a specific company, and their invoices, or a 404 error if the company is not found
 router.get("/:code", async(req, res, next) => {
     try {
-        const results = await db.query(
+        const code = req.params.code;
+        const companyResults = await db.query(
             `SELECT code, name, description
              FROM companies
-             WHERE code=$1`, [req.params.code]
+             WHERE code=$1`, [code]
         );
-        if (!results.rows.length) throw new ExpressError("Not Found", 404);
-        return res.json(results.rows);
+        const companyInvoices = await db.query(
+            `SELECT comp_code, amt, paid, add_date, paid_date
+             FROM invoices
+             WHERE comp_code = $1`, [code]
+        )
+        if (!companyResults.rows.length) throw new ExpressError("Not Found", 404);
+        let company = companyResults.rows[0];
+        company.invoices = companyInvoices.rows;
+        return res.json(company);
     } catch (err) {
         return next(err);
     };
