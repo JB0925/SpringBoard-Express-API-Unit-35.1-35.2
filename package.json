@@ -12,6 +12,10 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "pg": "^8.7.1"
+    "pg": "^8.7.1",
+    "supertest": "^6.1.6"
+  },
+  "devDependencies": {
+    "postgres-date": "^1.0.7"
   }
 }

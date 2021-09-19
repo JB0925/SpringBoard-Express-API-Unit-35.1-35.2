@@ -10,6 +10,7 @@ router.get("/", async(req, res, next) => {
             `SELECT code, name, description
              FROM companies`
         );
+        if (!results.rows.length) throw new ExpressError("No company data found.", 400);
         return res.json(results.rows)
     } catch (err) {
         return next(err);
@@ -43,6 +44,7 @@ router.get("/:code", async(req, res, next) => {
 router.post("/", async(req, res, next) => {
     try {
         const { code, name, description } = req.body;
+        if (!code || !name || !description) throw new ExpressError("Not enough data to add company.", 400);
         const results = await db.query(
             `INSERT INTO companies
              (code, name, description)

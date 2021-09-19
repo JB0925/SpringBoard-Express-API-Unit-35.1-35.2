@@ -37,10 +37,13 @@ router.get("/:id", async(req, res, next) => {
 // Creates a new invoice and returns it as an object.
 router.post("/", async(req, res, next) => {
     try {
+        const booleans = [true, false];
         const { comp_code, amt, paid, add_date, paid_date } = req.body;
-        if (!comp_code || !amt || !paid || !add_date || !paid_date) {
+        if (!comp_code || !amt || !add_date || !paid_date) {
             throw new ExpressError("Not enough data to add item.", 400);
         };
+        if (booleans.indexOf(paid) === -1) throw new ExpressError("Paid column must be true or false.", 400);
+
         const result = await db.query(
             `INSERT INTO invoices
              (comp_code, amt, paid, add_date, paid_date)
@@ -62,9 +65,11 @@ router.put("/:id", async(req, res, next) => {
     try {
         const { comp_code, amt, paid, add_date, paid_date } = req.body;
         const id = req.params.id;
-        if (!comp_code || !amt || !paid || !add_date || !paid_date) {
+        const booleans = [true, false];
+        if (!comp_code || !amt || !add_date || !paid_date) {
             throw new ExpressError("You must update every field to update item. Use same values on other columns if necessary", 400);
         };
+        if (booleans.indexOf(paid) === -1) throw new ExpressError("Paid column must be true or false.", 400);
         const result = await db.query(
             `UPDATE invoices
              SET comp_code = $1,
