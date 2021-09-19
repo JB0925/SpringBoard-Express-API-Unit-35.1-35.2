@@ -2,6 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const ExpressError = require("../expressError");
 const db = require("../db");
+const slugify = require("slugify");
 
 // Returns an array of all companies
 router.get("/", async(req, res, next) => {
@@ -45,15 +46,16 @@ router.post("/", async(req, res, next) => {
     try {
         const { code, name, description } = req.body;
         if (!code || !name || !description) throw new ExpressError("Not enough data to add company.", 400);
+        const slugifiedCode = slugify(code, '_')
         const results = await db.query(
             `INSERT INTO companies
              (code, name, description)
              VALUES
              ($1, $2, $3)
-             RETURNING code, name, description`, [code, name, description]
+             RETURNING code, name, description`, [slugifiedCode, name, description]
         );
         return res.status(201).json({
-            company: {code, name, description}
+            company: {slugifiedCode, name, description}
         });
     } catch (err) {
         return next(err);
