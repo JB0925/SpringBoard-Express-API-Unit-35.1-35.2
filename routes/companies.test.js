@@ -84,7 +84,7 @@ describe("/POST /companies", () => {
         const resp = await request(app).post("/companies").send(newCompany);
         expect(resp.statusCode).toBe(201);
         expect(resp.body).toEqual({
-            company: {code: "msft", name: "Microsoft", description: "Makes computer operating systems."}
+            company: {slugifiedCode: "msft", name: "Microsoft", description: "Makes computer operating systems."}
         });
     });
     test("Does the POST route return an error if there is not enough data?", async() => {
