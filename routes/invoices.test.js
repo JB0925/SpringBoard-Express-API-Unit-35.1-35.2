@@ -46,6 +46,12 @@ describe("GET /invoices, /invoices/:id", () => {
         expect(resp.statusCode).toBe(200);
         expect(resp.body).toEqual(testInvoice);
     });
+    test("Does an empty database throw a 404 not found error?", async() => {
+        const deleteQuery = await db.query("DELETE from invoices");
+        const resp = await request(app).get(`/invoices`);
+        expect(resp.statusCode).toEqual(404);
+        expect(resp.body.error.message).toEqual("No invoice data found.");
+    });
     test("Does the GET single invoice route work when given a valid id?", async() => {
         const newInvoice = await db.query(
             `INSERT INTO invoices
@@ -126,7 +132,7 @@ describe("PUT /invoices/:id", () => {
              VALUES
              ('apple', 5000, false, '2021-09-18T18:47:52.116Z', null)
              RETURNING id, comp_code, amt, paid, add_date, paid_date`
-        )
+        );
         const updatedInvoice = {
             comp_code: "apple",
             amt: 10000,
@@ -186,6 +192,26 @@ describe("PUT /invoices/:id", () => {
         expect(resp.statusCode).toBe(400);
         expect(resp.body.error.message).toEqual("Paid column must be true or false.");
     });
+    test("Does the PUT route return an error if not all columns are updated?", async() => {
+        const newInvoice = await db.query(
+            `INSERT INTO invoices
+             (comp_code, amt, paid, add_date, paid_date)
+             VALUES
+             ('apple', 5000, false, '2021-09-18T18:47:52.116Z', null)
+             RETURNING id, comp_code, amt, paid, add_date, paid_date`
+        );
+        const updatedInvoice = {
+            comp_code: "apple",
+            paid: false,
+            add_date: "2021-09-18T18:47:52.116Z",
+            paid_date: "null"  
+    };
+        const id = newInvoice.rows[0].id;
+        const resp = await request(app).put(`/invoices/${id}`).send(updatedInvoice);
+        expect(resp.statusCode).toBe(400);
+        expect(resp.body.error.message)
+        .toEqual("You must update every field to update item. Use same values on other columns if necessary");
+    });
 });
 
 describe("DELETE /invoices/:id", () => {
@@ -208,5 +234,13 @@ describe("DELETE /invoices/:id", () => {
         const resp = await request(app).delete(`/invoices/15`);
         expect(resp.statusCode).toBe(404);
         expect(resp.body.error.message).toEqual("Invoice not found.");
+    });
+});
+
+describe("ANY /invoices/:anything", () => {
+    test("Does a request to an endpoint that does not exist throw an error as intended?", async() => {
+        const resp = await request(app).get("/invoice");
+        expect(resp.statusCode).toBe(404);
+        expect(resp.body.error.message).toEqual("Not Found");
     });
 });

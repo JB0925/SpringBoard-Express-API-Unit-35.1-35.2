@@ -11,6 +11,7 @@ router.get("/", async(req, res, next) => {
             `SELECT comp_code, amt, paid, add_date, paid_date
              FROM invoices`
         );
+        if (!results.rows.length) throw new ExpressError("No invoice data found.", 404);
         return res.json(results.rows);
     } catch (err) {
         return next(err);
