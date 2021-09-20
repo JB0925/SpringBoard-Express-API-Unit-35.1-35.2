@@ -20,7 +20,7 @@ router.get("/:industry", async(req, res, next) => {
 });
 
 
-router.post("/industries/:code", async(req, res, next) => {
+router.post("/:code", async(req, res, next) => {
     try {
         const { code, id } = req.body;
         const addToJoinTable = await db.query(
