@@ -6,6 +6,7 @@ const request = require("supertest");
 
 let testCompany;
 let testInvoice;
+let testIndustry;
 
 beforeEach(async() => {
     let company = await db.query(
@@ -22,14 +23,23 @@ beforeEach(async() => {
          ('apple', 500, false, '2021-09-18T18:47:52.116Z', null)
          RETURNING comp_code, amt, paid, add_date, paid_date`
     )
+    let industry = await db.query(
+        `INSERT INTO industries
+         (code, industry)
+         VALUES
+         ('apple', 'Computers')
+         RETURNING id, code, industry`
+    )
     testCompany = company.rows[0];
     testInvoice = invoice.rows;
+    testIndustry = industry.rows[0].industry;
 });
 
 
 afterEach(async() => {
     await db.query(`DELETE FROM companies`);
     await db.query(`DELETE FROM invoices`);
+    await db.query(`DELETE FROM industries`);
 });
 
 
@@ -62,7 +72,8 @@ describe("GET /companies, /companies/:code", () => {
     test("Does the GET company by code route return good data, given a good code parameter?", async() => {
         const { code, name, description } = testCompany;
         const invoices  = testInvoice;
-        const result = {code, name, description, invoices};
+        const industries = [testIndustry];
+        const result = {code, name, description, invoices, industries};
         const resp = await request(app).get("/companies/apple");
         expect(resp.statusCode).toBe(200);
         expect(resp.body).toEqual(result);
