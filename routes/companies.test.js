@@ -8,6 +8,7 @@ let testCompany;
 let testInvoice;
 let testIndustry;
 
+// Setup and Teardown
 beforeEach(async() => {
     let company = await db.query(
         `INSERT INTO companies
@@ -47,7 +48,7 @@ afterAll(async() => {
     await db.end();
 });
 
-
+// Coverage for all of the "/companies" GET routes.
 describe("GET /companies, /companies/:code", () => {
     test("Do the GET routes return the expected data when passed good parameters?", async() => {
         const { code, name, description } = testCompany;
@@ -85,6 +86,7 @@ describe("GET /companies, /companies/:code", () => {
     });
 });
 
+// Coverage for the "/companies" POST route.
 describe("/POST /companies", () => {
     test("Does the POST route allow us to create a new company, given a good request body?", async() => {
         const newCompany = {
@@ -109,6 +111,7 @@ describe("/POST /companies", () => {
     });
 });
 
+// Coverage for the "/companies/:code" PUT route.
 describe("/PUT /companies/:code", () => {
     test("Does the PUT route correctly update a company, given a correct company code and all required data?", async() => {
         const updatedCompany = {
@@ -143,6 +146,7 @@ describe("/PUT /companies/:code", () => {
     });
 });
 
+// Coverage for the "/companies/:code" DELETE route.
 describe("DELETE /companies/:code", () => {
     test("Does the DELETE route delete a company from the database, given an existing company code?", async() => {
         const resp = await request(app).delete("/companies/apple");

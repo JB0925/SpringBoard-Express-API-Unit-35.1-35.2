@@ -7,6 +7,7 @@ const request = require("supertest");
 let testCompany;
 let testInvoice;
 
+// Setup and Teardown.
 beforeEach(async() => {
     let company = await db.query(
         `INSERT INTO companies
@@ -40,6 +41,7 @@ afterAll(async() => {
 });
 
 
+// Coverage for all "/invoices" GET routes.
 describe("GET /invoices, /invoices/:id", () => {
     test("Does the GET invoices route return an array of all invoices?", async() => {
         const resp = await request(app).get("/invoices");
@@ -78,6 +80,7 @@ describe("GET /invoices, /invoices/:id", () => {
     });
 });
 
+// Coverage for the "/invoices" POST route.
 describe("POST /invoices", () => {
     test("Does the POST route create a new invoice in the DB?", async() => {
         const newInvoice = {
@@ -124,6 +127,7 @@ describe("POST /invoices", () => {
     });
 });
 
+// Coverage for the "/invoices" PUT route.
 describe("PUT /invoices/:id", () => {
     test("Does the PUT route update an existing item?", async() => {
         const newInvoice = await db.query(
@@ -214,6 +218,7 @@ describe("PUT /invoices/:id", () => {
     });
 });
 
+// Coverage for the "/invoices" DELETE route.
 describe("DELETE /invoices/:id", () => {
     test("Does the DELETE route delete an existing item?", async() => {
         const newInvoice = await db.query(
@@ -237,6 +242,7 @@ describe("DELETE /invoices/:id", () => {
     });
 });
 
+// Coverage for an incorrect endpoint.
 describe("ANY /invoices/:anything", () => {
     test("Does a request to an endpoint that does not exist throw an error as intended?", async() => {
         const resp = await request(app).get("/invoice");

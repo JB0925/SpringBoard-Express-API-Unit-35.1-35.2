@@ -49,11 +49,13 @@ router.post("/", async(req, res, next) => {
              ($1, $2)
              RETURNING id, code, industry`, [code, industry]
         );
+        // Here we check to see if this company code exists in our "companies" table.
         const getCompany = await db.query(
             `SELECT code
              FROM companies
              WHERE code = $1`, [code]
-        )
+        );
+        // If it does, we make another insert into the association table "companyindustries".
         if (getCompany.rows.length) {
             const { id } = addedIndustry.rows[0];
             await db.query(
@@ -70,8 +72,5 @@ router.post("/", async(req, res, next) => {
         return next(error);
     };
 });
-
-
-
 
 module.exports = router;
